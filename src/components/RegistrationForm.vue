@@ -4,7 +4,7 @@
       Prenotazione Laboratori
     </h1>
 
-    <form @submit.prevent="submitRegistration" class="space-y-6">
+    <form @submit.prevent="submitForm" class="space-y-6">
       <!-- Personal Information -->
       <div class="bg-gray-50 p-4 rounded-lg">
         <h2 class="text-xl font-semibold mb-4 text-gray-700">Informazioni Personali</h2>

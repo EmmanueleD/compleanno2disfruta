@@ -44,17 +44,22 @@
             Laboratorio di Quilling *
           </h3>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <button v-for="session in 3" :key="`quilling-${session}`" type="button"
-              @click="form.quilling_session = session" :class="[
-                'p-4 rounded-lg border-2 transition-all duration-200 font-medium',
+            <button
+              v-for="session in [1, 2, 3]"
+              :key="session"
+              type="button"
+              @click="!isSessionConflict(session, 'quilling') && (form.quilling_session = session)"
+              :disabled="isSessionConflict(session, 'quilling')"
+              :class="[
+                'px-6 py-4 rounded-lg border-2 transition-all duration-200 font-medium relative',
                 form.quilling_session === session
-                  ? 'border-blue-500 bg-blue-100 text-blue-700 shadow-md'
-                  : 'border-blue-200 bg-white text-blue-600 hover:border-blue-300 hover:bg-blue-50'
-              ]">
-              <div class="text-center">
-                <div class="text-lg font-bold">Sessione {{ session }}</div>
-                <div class="text-sm opacity-75">Posti illimitati</div>
-              </div>
+                  ? 'bg-blue-500 text-white border-blue-500 shadow-lg'
+                  : isSessionConflict(session, 'quilling')
+                  ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                  : 'bg-white text-blue-600 border-blue-200 hover:border-blue-400 hover:bg-blue-50'
+              ]"
+            >
+              Sessione {{ session }}
             </button>
           </div>
         </div>
@@ -65,17 +70,22 @@
             Laboratorio di Ricamo *
           </h3>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <button v-for="session in 3" :key="`ricamo-${session}`" type="button" @click="form.ricamo_session = session"
+            <button
+              v-for="session in [1, 2, 3]"
+              :key="session"
+              type="button"
+              @click="!isSessionConflict(session, 'ricamo') && (form.ricamo_session = session)"
+              :disabled="isSessionConflict(session, 'ricamo')"
               :class="[
-                'p-4 rounded-lg border-2 transition-all duration-200 font-medium',
+                'px-6 py-4 rounded-lg border-2 transition-all duration-200 font-medium relative',
                 form.ricamo_session === session
-                  ? 'border-green-500 bg-green-100 text-green-700 shadow-md'
-                  : 'border-green-200 bg-white text-green-600 hover:border-green-300 hover:bg-green-50'
-              ]">
-              <div class="text-center">
-                <div class="text-lg font-bold">Sessione {{ session }}</div>
-                <div class="text-sm opacity-75">Posti illimitati</div>
-              </div>
+                  ? 'bg-green-500 text-white border-green-500 shadow-lg'
+                  : isSessionConflict(session, 'ricamo')
+                  ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                  : 'bg-white text-green-600 border-green-200 hover:border-green-400 hover:bg-green-50'
+              ]"
+            >
+              Sessione {{ session }}
             </button>
           </div>
         </div>
@@ -88,11 +98,14 @@
           </h3>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
             <button v-for="session in 3" :key="`psicologia-${session}`" type="button"
-              @click="!isSessionFull(session) && (form.psicologia_session = session)" :disabled="isSessionFull(session)"
+              @click="!isSessionFull(session) && !isSessionConflict(session, 'psicologia') && (form.psicologia_session = session)" 
+              :disabled="isSessionFull(session) || isSessionConflict(session, 'psicologia')"
               :class="[
-                'p-4 rounded-lg border-2 transition-all duration-200 font-medium',
+                'p-4 rounded-lg border-2 transition-all duration-200 font-medium relative',
                 isSessionFull(session)
                   ? 'border-red-300 bg-red-50 text-red-400 cursor-not-allowed opacity-60'
+                  : isSessionConflict(session, 'psicologia')
+                  ? 'border-gray-300 bg-gray-50 text-gray-400 cursor-not-allowed opacity-60'
                   : form.psicologia_session === session
                     ? 'border-purple-500 bg-purple-100 text-purple-700 shadow-md'
                     : 'border-purple-200 bg-white text-purple-600 hover:border-purple-300 hover:bg-purple-50'
@@ -173,6 +186,22 @@ const isSessionFull = (session: number): boolean => {
   return sessionCounts.value[session] >= 15
 }
 
+// Check if a session number is already selected in another workshop
+const isSessionConflict = (sessionNumber: number, currentWorkshop: 'quilling' | 'ricamo' | 'psicologia'): boolean => {
+  if (currentWorkshop !== 'quilling' && form.value.quilling_session === sessionNumber) return true
+  if (currentWorkshop !== 'ricamo' && form.value.ricamo_session === sessionNumber) return true
+  if (currentWorkshop !== 'psicologia' && form.value.psicologia_session === sessionNumber) return true
+  return false
+}
+
+// Get conflict message for a session
+const getConflictMessage = (sessionNumber: number): string => {
+  if (form.value.quilling_session === sessionNumber) return 'Già selezionata per Quilling'
+  if (form.value.ricamo_session === sessionNumber) return 'Già selezionata per Ricamo'
+  if (form.value.psicologia_session === sessionNumber) return 'Già selezionata per Psicologia'
+  return ''
+}
+
 const loadSessionCounts = async () => {
   try {
     // Get all registrations and count psychology sessions directly
@@ -197,14 +226,37 @@ const loadSessionCounts = async () => {
   }
 }
 
-const submitRegistration = async () => {
-  if (!form.value.nome || !form.value.cognome || !form.value.email ||
-    !form.value.quilling_session || !form.value.ricamo_session || !form.value.psicologia_session) {
-    errorMessage.value = 'Tutti i campi sono obbligatori'
+const submitForm = async () => {
+  if (isSubmitting.value) return
+  
+  errorMessage.value = ''
+  successMessage.value = ''
+  
+  // Validation
+  if (!form.value.nome || !form.value.email) {
+    errorMessage.value = 'Nome ed email sono obbligatori'
+    return
+  }
+  
+  if (!form.value.quilling_session && !form.value.ricamo_session && !form.value.psicologia_session) {
+    errorMessage.value = 'Seleziona almeno una sessione di workshop'
     return
   }
 
-  if (isSessionFull(form.value.psicologia_session)) {
+  // Check for session conflicts
+  const selectedSessions = [
+    form.value.quilling_session,
+    form.value.ricamo_session, 
+    form.value.psicologia_session
+  ].filter(Boolean)
+  
+  const uniqueSessions = new Set(selectedSessions)
+  if (selectedSessions.length !== uniqueSessions.size) {
+    errorMessage.value = 'Non puoi selezionare lo stesso numero di sessione per workshop diversi'
+    return
+  }
+
+  if (form.value.psicologia_session && isSessionFull(form.value.psicologia_session)) {
     errorMessage.value = 'La sessione selezionata per il Laboratorio di Psicologia è al completo'
     return
   }
@@ -240,9 +292,9 @@ const submitRegistration = async () => {
       nome: form.value.nome,
       cognome: form.value.cognome,
       email: form.value.email,
-      quilling: form.value.quilling_session.toString(),
-      ricamo: form.value.ricamo_session.toString(),
-      psicologia: form.value.psicologia_session.toString()
+      quilling: form.value.quilling_session?.toString() || '',
+      ricamo: form.value.ricamo_session?.toString() || '',
+      psicologia: form.value.psicologia_session?.toString() || ''
     });
     
     window.location.href = `/conferma?${params.toString()}`;

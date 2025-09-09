@@ -1,0 +1,58 @@
+---
+export interface Props {
+	title: string;
+}
+
+const { title } = Astro.props;
+import '../styles/global.css'
+---
+
+<!DOCTYPE html>
+<html lang="it">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content="Sistema di prenotazione per laboratori creativi" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<title>{title}</title>
+	</head>
+	<body class="bg-gray-100 min-h-screen flex flex-col">
+		<main class="container mx-auto py-8 px-4 flex-grow">
+			<slot />
+		</main>
+		
+		<!-- Footer -->
+		<footer class="bg-gray-800 text-white py-6 mt-auto">
+			<div class="container mx-auto px-4">
+				<div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+					<!-- Credits -->
+					<div class="text-center md:text-left">
+						<p class="text-sm text-gray-300">
+							Avatar generati da 
+							<a href="https://avatar-placeholder.iran.liara.run/" target="_blank" rel="noopener noreferrer" 
+							   class="text-blue-400 hover:text-blue-300 underline">
+								Avatar Placeholder API
+							</a>
+						</p>
+					</div>
+					
+					<!-- Development Attribution -->
+					<div class="text-center md:text-right">
+						<p class="text-sm text-gray-300">
+							Sviluppato da 
+							<a href="https://emmanueledurante.com" target="_blank" rel="noopener noreferrer" 
+							   class="text-blue-400 hover:text-blue-300 underline font-medium">
+								Emmanuel Durante
+							</a>
+						</p>
+						<p class="text-xs text-gray-400 mt-1">
+							Con l'aiuto di 
+							<span class="text-purple-400">Windsurf IDE</span> e 
+							<span class="text-orange-400">Claude Sonnet 3.5</span>
+						</p>
+					</div>
+				</div>
+			</div>
+		</footer>
+	</body>
+</html>

@@ -1,0 +1,8 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ProtectedAdmin from '../components/ProtectedAdmin.vue';
+---
+
+<Layout title="Dashboard Amministratore">
+	<ProtectedAdmin client:load />
+</Layout>

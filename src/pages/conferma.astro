@@ -1,0 +1,195 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Prenotazione Confermata">
+  <main
+    class="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 py-12 px-4"
+  >
+    <div class="max-w-2xl mx-auto">
+      <!-- Success Icon -->
+      <div class="text-center mb-8">
+        <div
+          class="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-4"
+        >
+          <svg
+            class="w-10 h-10 text-green-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 13l4 4L19 7"></path>
+          </svg>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">
+          Prenotazione Confermata!
+        </h1>
+        <p class="text-lg text-gray-600">
+          Grazie per aver prenotato i nostri laboratori
+        </p>
+      </div>
+
+      <!-- Booking Summary Card -->
+      <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+        <h2 class="text-2xl font-semibold text-gray-900 mb-6">
+          Riepilogo Prenotazione
+        </h2>
+
+        <!-- Personal Info -->
+        <div class="bg-gray-50 rounded-lg p-4 mb-6">
+          <h3 class="text-lg font-medium text-gray-900 mb-3">Dati Personali</h3>
+          <div class="space-y-2">
+            <p>
+              <span class="font-medium">Nome:</span>
+              <span id="nome-display"></span>
+            </p>
+            <p>
+              <span class="font-medium">Cognome:</span>
+              <span id="cognome-display"></span>
+            </p>
+            <p>
+              <span class="font-medium">Email:</span>
+              <span id="email-display"></span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Workshops -->
+        <div class="space-y-4">
+          <!-- Quilling -->
+          <div class="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
+            <h3 class="text-lg font-medium text-blue-800 mb-2">
+              🎨 Laboratorio di Quilling
+            </h3>
+            <p class="text-blue-700">
+              Sessione <span id="quilling-session"></span>
+            </p>
+          </div>
+
+          <!-- Ricamo -->
+          <div class="bg-green-50 rounded-lg p-4 border-l-4 border-green-500">
+            <h3 class="text-lg font-medium text-green-800 mb-2">
+              🧵 Laboratorio di Ricamo
+            </h3>
+            <p class="text-green-700">
+              Sessione <span id="ricamo-session"></span>
+            </p>
+          </div>
+
+          <!-- Psicologia -->
+          <div class="bg-purple-50 rounded-lg p-4 border-l-4 border-purple-500">
+            <h3 class="text-lg font-medium text-purple-800 mb-2">
+              🧠 Laboratorio di Psicologia
+            </h3>
+            <p class="text-purple-700">
+              Sessione <span id="psicologia-session"></span>
+            </p>
+            <p class="text-sm text-purple-600 mt-1">
+              Massimo 15 partecipanti per sessione
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-col sm:flex-row gap-4">
+        <button
+          onclick="window.location.href = '/'"
+          class="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center gap-2"
+        >
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+          </svg>
+          Nuova Prenotazione
+        </button>
+
+        <button
+          onclick="cancelBooking()"
+          class="flex-1 bg-red-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-red-700 transition-colors duration-200 flex items-center justify-center gap-2"
+        >
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+            ></path>
+          </svg>
+          Annulla Prenotazione
+        </button>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  import { supabase } from "../lib/supabase";
+
+  // Get booking data from URL parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const bookingData = {
+    nome: urlParams.get("nome") || "",
+    cognome: urlParams.get("cognome") || "",
+    email: urlParams.get("email") || "",
+    quilling_session: urlParams.get("quilling") || "",
+    ricamo_session: urlParams.get("ricamo") || "",
+    psicologia_session: urlParams.get("psicologia") || ""
+  };
+
+  // Display booking data
+  const nomeEl = document.getElementById("nome-display");
+  const cognomeEl = document.getElementById("cognome-display");
+  const emailEl = document.getElementById("email-display");
+  const quillingEl = document.getElementById("quilling-session");
+  const ricamoEl = document.getElementById("ricamo-session");
+  const psicologiaEl = document.getElementById("psicologia-session");
+
+  if (nomeEl) nomeEl.textContent = bookingData.nome;
+  if (cognomeEl) cognomeEl.textContent = bookingData.cognome;
+  if (emailEl) emailEl.textContent = bookingData.email;
+  if (quillingEl) quillingEl.textContent = bookingData.quilling_session;
+  if (ricamoEl) ricamoEl.textContent = bookingData.ricamo_session;
+  if (psicologiaEl) psicologiaEl.textContent = bookingData.psicologia_session;
+
+  // Cancel booking function
+  (window as any).cancelBooking = async function () {
+    if (!confirm("Sei sicuro di voler annullare questa prenotazione?")) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("registrations")
+        .delete()
+        .eq("email", bookingData.email);
+
+      if (error) throw error;
+
+      alert("Prenotazione annullata con successo!");
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Errore durante la cancellazione:", error);
+      alert(
+        "Errore durante la cancellazione della prenotazione. Riprova più tardi."
+      );
+    }
+  };
+</script>

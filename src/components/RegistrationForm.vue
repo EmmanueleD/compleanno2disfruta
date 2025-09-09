@@ -48,7 +48,7 @@
               v-for="session in [1, 2, 3]"
               :key="session"
               type="button"
-              @click="!isSessionConflict(session, 'quilling') && (form.quilling_session = session)"
+              @click="!isSessionConflict(session, 'quilling') && (form.quilling_session = form.quilling_session === session ? null : session)"
               :disabled="isSessionConflict(session, 'quilling')"
               :class="[
                 'px-6 py-4 rounded-lg border-2 transition-all duration-200 font-medium relative',
@@ -74,7 +74,7 @@
               v-for="session in [1, 2, 3]"
               :key="session"
               type="button"
-              @click="!isSessionConflict(session, 'ricamo') && (form.ricamo_session = session)"
+              @click="!isSessionConflict(session, 'ricamo') && (form.ricamo_session = form.ricamo_session === session ? null : session)"
               :disabled="isSessionConflict(session, 'ricamo')"
               :class="[
                 'px-6 py-4 rounded-lg border-2 transition-all duration-200 font-medium relative',
@@ -98,7 +98,7 @@
           </h3>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
             <button v-for="session in 3" :key="`psicologia-${session}`" type="button"
-              @click="!isSessionFull(session) && !isSessionConflict(session, 'psicologia') && (form.psicologia_session = session)" 
+              @click="!isSessionFull(session) && !isSessionConflict(session, 'psicologia') && (form.psicologia_session = form.psicologia_session === session ? null : session)" 
               :disabled="isSessionFull(session) || isSessionConflict(session, 'psicologia')"
               :class="[
                 'p-4 rounded-lg border-2 transition-all duration-200 font-medium relative',
